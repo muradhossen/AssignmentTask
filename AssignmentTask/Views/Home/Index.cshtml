@@ -1,0 +1,468 @@
+﻿@model IEnumerable<AssignmentTask.ViewModel.SalesViewModel>
+@{
+    ViewBag.Title = "Index";
+    int Count = 0;
+}
+
+<br />
+<br />
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <div class="row">
+            <h2 class="panel-title pull-left" style="margin-left:10px;">
+                <strong>Order Details</strong>
+            </h2>
+            <button style="margin-right:10px" class="btn btn-primary pull-right" onclick="addNewOrder()">New Order</button>
+        </div>
+    </div>
+
+    @*Receive All Database Data From Controller And Display Those Data In Client Side*@
+
+    @if (Model.Count() != 0)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Address</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Paid</th>
+                    <th scope="col">Due</th>
+                    <th scope="col">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                <tr>
+                    <th scope="row">@{++Count;}</th>
+                    <td>@item.Name</td>
+                    <td>@item.Phone</td>
+                    <td>@item.Address</td>
+                    <td>@item.Total</td>
+                    <td>@item.Paid</td>
+                    <td>@item.Due</td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { id = item }, new { @class = "ui-btn" })
+                    </td>
+                </tr>
+                }
+                 
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="panel-body">
+            <h3 style="color:red;">Empty!</h3>
+        </div>
+
+    }
+
+</div>
+
+
+
+
+<div class="modal fade" id="newOrderModal">
+    <div class="modal-dialog modal-lg" style=" width: 900px !important;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" class="close" data-dismiss="modal">&times;</a>
+                <h4>Create New Sales</h4>
+            </div>
+            <form id="NewOrderForm">
+                <div class="modal-body">
+                    @*Customer Details*@
+                    <h5 style="color:#ff6347">Customer Details</h5>
+                    <hr />
+                    <div class="form-horizontal">
+                        <input type="hidden" id="CustomerId" />
+                        <div class="form-group">
+                            <label for="name" class="control-label col-md-2">
+                                Customer Name
+                            </label>
+                            <div class="col-md-4">
+                                <input type="text" id="name" name="name" placeholder="Customer Name" class="form-control" />
+                            </div>
+
+                            <label for="phone" class="control-label col-md-2">
+                                Customer Phone
+                            </label>
+                            <div class="col-md-4">
+                                <input type="text" id="phone" name="phone" placeholder="Customer Phone" class="form-control" />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="address" class="control-label col-md-2">
+                                Address
+                            </label>
+                            <div class="col-md-4">
+                                <input type="text" id="address" address="address" placeholder="Customer Address" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    @*Order Details*@
+                    <h5 style="margin-top:10px;color:#ff6347">Sales Items</h5>
+                    <hr />
+                    <div class="">
+                        <input type="hidden" id="OrderId" />
+                        <div class="row">
+                            <div class="form-group col-xs-3 col-md-3">
+                                <label for="item" class="control-label">Item</label>
+                                <select class="form-control" id="item" placeholder="Item">
+                                    <option value="">--Select--</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group col-xs-3 col-md-3">
+                                <label for="price" class="control-label">Price</label>
+                                <input type="text" class="form-control" id="price" placeholder="price">
+                            </div>
+
+                            <div class="form-group col-xs-3 col-md-3">
+                                <label for="quantity" class="control-label">Quantity</label>
+                                <input type="text" class="form-control" id="quantity" name="quantity" placeholder="Quantity">
+                            </div>
+
+                            <div class="form-group col-xs-2 col-md-2">
+                                <label for="total" class="control-label">Total</label>
+                                <input type="text" class="form-control" id="total" name="total" placeholder="Total" readonly>
+                            </div>
+
+                            <div class="form-group col-xs-1 col-md-1">
+                                <label class="control-label"></label>
+                                <a id="addToList" class="btn btn-primary">Add</a>
+                            </div>
+                        </div>
+
+
+
+                        <table id="detailsTable" class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width:30%">Item</th>
+                                    <th style="width:10%">Price</th>
+                                    <th style="width:25%">Quantity</th>
+                                    <th style="width:25%">Total</th>
+                                    <th style="width:10%">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+
+                    <h5 style="margin-top:10px;color:#ff6347">Sales Summary</h5>
+                    <hr />
+                    <div class="row">
+                        <div class="pull-right">
+                            <div class="row">
+                                <div class="form-group">
+                                    <label for="gTotal" class="control-label col-md-4">
+                                        Total Price
+                                    </label>
+                                    <div class="col-md-7">
+                                        <input type="text" id="gTotal" name="gTotal" class="form-control" />
+                                    </div>
+                                </div>
+                            </div><br />
+                            <div class="row">
+                                <div class="form-group">
+                                    <label for="paid" class="control-label col-md-4">
+                                        Paid
+                                    </label>
+                                    <div class="col-md-7">
+                                        <input type="text" id="paid" name="paid" class="form-control" />
+                                    </div>
+                                </div>
+                            </div><br />
+                            <div class="row">
+                                <div class="form-group">
+                                    <label for="due" class="control-label col-md-4">
+                                        Due
+                                    </label>
+                                    <div class="col-md-7">
+                                        <input type="text" id="due" name="due" class="form-control" readonly />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="reset" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button id="saveOrder" type="submit" class="btn btn-danger">Save Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+
+        var gTotal = 0;
+        //Show Modal.
+        function addNewOrder() {
+            $("#newOrderModal").modal();
+        }
+
+        //-----------------Load Product List From Database----------------
+
+        $(document).ready(function () {
+            $.get('/Home/GetProductList',
+                function (data) {
+                    $.each(data,
+                        function (i, item) {
+                            $('#item').append($('<option>',
+                                {
+                                    value: item.Id,
+                                    text: item.Name
+                                }));
+                            console.log(item.Name)
+                        });
+                });
+        });
+
+
+       
+        //-----------Get price value by change dropdown value
+        $('#item').on('change', function (e) {
+            var optionSelected = $("option:selected", this);
+            var val = this.value;
+
+            $.ajax({
+                url: "/Home/GetPriceById",
+                data: "id=" + val,
+                type: "GET",
+                success: function (data) {
+
+                    $('#price').val(data);
+                },
+                error: function (passParams) {
+                    alert('Price error');
+                }
+            })
+
+        });
+
+
+        $("#quantity,#price").keyup(function () {
+            var quantity = $("#quantity").val();
+            var price = $('#price').val();
+            if (price != -1 && quantity != "" && quantity > 0) {
+                $('#total').val(quantity * price);
+            }
+            else if (quantity == '') $('#total').val(price);
+        });
+
+        //------Calculate due value
+        $("#paid").keyup(function () {
+            var gTotal = $('#gTotal').val();
+            var paid = $('#paid').val();
+            $('#due').val(gTotal - paid);
+
+        });
+
+        //Add Multiple Order.
+        $("#addToList").click(function (e) {
+            e.preventDefault();
+
+            if (($("#item option:selected").text() == "" || $.trim($("#price").val()) == ""
+                || $.trim($("#quantity").val()) == "" || $.trim($("#total").val()) == "")
+                || $("#item option:selected").text() == "--Select--") return;
+
+            var itemName = $("#item option:selected").text(),
+                itemVal = $("#item option:selected").val(),
+                price = $("#price").val(),
+                quantity = $("#quantity").val(),
+                total = $("#total").val(),
+                detailsTableBody = $("#detailsTable tbody");
+
+            gTotal += parseFloat(total);
+            $('#gTotal').val(gTotal);
+
+            var productItem = '<tr><td>' + itemName + '<span hidden>' + itemVal + '</span>' + '</td><td>' + price + '</td><td>' + quantity + '</td><td>' + (parseFloat(price) * parseInt(quantity)) + '</td><td><a data-itemId="0" href="#" class="deleteItem">Remove</a></td></tr>';
+            detailsTableBody.append(productItem);
+            clearItem();
+        });
+        //After Add A New Order In The List, Clear Clean The Form For Add More Order.
+        function clearItem() {
+            $("#item").val('');
+            $("#price").val('');
+            $("#quantity").val('');
+            $("#total").val('');
+        }
+        // After Add A New Order In The List, If You Want, You Can Remove It.
+        $(document).on('click', 'a.deleteItem', function (e) {
+            e.preventDefault();
+            var $self = $(this);
+            if ($(this).attr('data-itemId') == "0") {
+                $(this).parents('tr').css("background-color", "#ff6347").fadeOut(800, function () {
+                    console.log($(this).find('td:eq(3)').html());
+                    var deleteAmount = $(this).find('td:eq(3)').html()
+                    gTotal -= parseFloat(deleteAmount);
+                    $('#gTotal').val(gTotal);
+                    $(this).remove();
+                });
+            }
+        });
+
+        //After Click Save Button Pass All Data View To Controller For Save Database
+        function saveOrder(data) {
+            return $.ajax({
+                contentType: 'application/json; charset=utf-8',
+                dataType: 'json',
+                type: 'POST',
+                url: "/Home/SaveOrder",
+                data: data,
+                success: function (result) {
+                    alert(result);
+                    location.reload();
+                },
+                error: function () {
+                    alert("Error!")
+                }
+            });
+        }
+        //Collect Multiple Order List For Pass To Controller
+        $("#saveOrder").click(function (e) {
+            e.preventDefault();
+
+            var orderArr = [];
+            orderArr.length = 0;
+            var UserArr = [];
+
+            $.each($("#detailsTable tbody tr"), function () {
+                orderArr.push({
+                    itemId: $(this).find('td:eq(0) span',).html(),
+                    price: $(this).find('td:eq(1)').html(),
+                    quantity: $(this).find('td:eq(2)').html(),
+                    total: $(this).find('td:eq(3)').html()
+                });
+            });
+
+            UserArr.push({
+                name: $("#name").val(),
+                address: $("#address").val(),
+                phone: $("#phone").val()
+            });
+
+            var data = JSON.stringify({
+                gTotal: $('#gTotal').val(),
+                paid: $('#paid').val(),
+                user: UserArr,
+                order: orderArr
+            });
+
+            $.when(saveOrder(data)).then(function (response) {
+                console.log(response);
+            }).fail(function (err) {
+                console.log(err);
+            });
+        });
+
+
+
+
+
+    </script>
+}
+<style>
+    .css-serial {
+        counter-reset: serial-number; /* Set the serial number counter to 0 */
+    }
+
+        .css-serial td:first-child:before {
+            counter-increment: serial-number; /* Increment the serial number counter */
+            content: counter(serial-number); /* Display the counter */
+        }
+
+
+
+
+
+
+    .card {
+        position: relative;
+        display: -webkit-box;
+        display: -ms-flexbox;
+        display: flex;
+        -webkit-box-orient: vertical;
+        -webkit-box-direction: normal;
+        -ms-flex-direction: column;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: #fff;
+        background-clip: border-box;
+        border: 1px solid rgba(0, 0, 0, 0.125);
+        border-radius: 0.25rem;
+    }
+
+        .card > hr {
+            margin-right: 0;
+            margin-left: 0;
+        }
+
+        .card > .list-group:first-child .list-group-item:first-child {
+            border-top-left-radius: 0.25rem;
+            border-top-right-radius: 0.25rem;
+        }
+
+        .card > .list-group:last-child .list-group-item:last-child {
+            border-bottom-right-radius: 0.25rem;
+            border-bottom-left-radius: 0.25rem;
+        }
+
+    .card-body {
+        -webkit-box-flex: 1;
+        -ms-flex: 1 1 auto;
+        flex: 1 1 auto;
+        padding: 1.25rem;
+    }
+
+    .card-title {
+        margin-bottom: 0.75rem;
+    }
+
+    .card-subtitle {
+        margin-top: -0.375rem;
+        margin-bottom: 0;
+    }
+
+    .card-text:last-child {
+        margin-bottom: 0;
+    }
+
+    .card-link:hover {
+        text-decoration: none;
+    }
+
+    .card-link + .card-link {
+        margin-left: 1.25rem;
+    }
+
+    .card-header {
+        padding: 0.75rem 1.25rem;
+        margin-bottom: 0;
+        background-color: rgba(0, 0, 0, 0.03);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+    }
+
+        .card-header:first-child {
+            border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
+        }
+
+        .card-header + .list-group .list-group-item:first-child {
+            border-top: 0;
+        }
+</style>
+
+
