@@ -12,7 +12,7 @@
             <h2 class="panel-title pull-left" style="margin-left:10px;">
                 <strong>Order Details</strong>
             </h2>
-            <button style="margin-right:10px" class="btn btn-primary pull-right" onclick="addNewOrder()">New Sales</button>
+            <button style="margin-right:10px" class="btn btn-primary pull-right" onclick="addNewSales()">New Sales</button>
         </div>
     </div>
    
@@ -212,7 +212,8 @@
     <script>
 
         var gTotal = 0;         
-        function addNewOrder() {
+        function addNewSales() {
+            clearAllModal();
             $("#newOrderModal").modal();
         }
 
@@ -377,17 +378,8 @@
                 url: "/Home/Edit",
                 data: "OrderId=" + orderId,
                 type: "POST",
-                success: function (data) {
-                     
-                    //------
-                    clearItem();
-                    $("#name").val('');
-                    $("#phone").val('');
-                    $("#address").val('');
-                    $("#gTotal").val('');
-                    $("#paid").val('');
-                    $("#due").val('');
-                    $("#modalBody").children().remove();
+                success: function (data) {                    
+                    clearAllModal();
 
                     var obj = data["OrderItemList"];
                     $.each(obj, function (key, value) {                       
@@ -411,6 +403,18 @@
                     alert('Edit Unseccessfull.');
                 }
             })
+        }
+
+        function clearAllModal() {
+            //------
+            clearItem();
+            $("#name").val('');
+            $("#phone").val('');
+            $("#address").val('');
+            $("#gTotal").val('');
+            $("#paid").val('');
+            $("#due").val('');
+            $("#modalBody").children().remove();
         }
     </script>
 }
