@@ -1,0 +1,90 @@
+﻿@model AssignmentTask.ViewModel.DetailsViewModel
+
+@{
+    ViewBag.Title = "Sales Deails";
+}
+
+<div>
+    <h4>Sales Deails</h4>
+    <hr />
+    <dl class="dl-horizontal table">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Phone)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Phone)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Address)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Address)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Total)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Total)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Paid)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Paid)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Due)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Due)
+        </dd>
+
+    </dl>
+</div>
+<div>
+    <div>
+        <table class="table table-border">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderItemList)
+                {
+                    <tr>
+                        <td>@item.ItemName</td>
+                        <td>@item.Price</td>
+                        <td>@item.Quantity</td>
+                        <td>@item.Total</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+</div>
+<p>
+    @Html.ActionLink("Back to List", "Index")
+</p>
