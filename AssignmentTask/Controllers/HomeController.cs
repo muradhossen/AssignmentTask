@@ -1,4 +1,5 @@
 ﻿using AssignmentTask.Models;
+using AssignmentTask.Service;
 using AssignmentTask.ViewModel;
 using Newtonsoft.Json;
 using System;
@@ -12,6 +13,7 @@ namespace AssignmentTask.Controllers
     public class HomeController : Controller
     {
         InvoiceDb db = new InvoiceDb();
+        OrderService service = new OrderService();
         public ActionResult Index()
         {
             var result = (from cus in db.Customers
@@ -111,56 +113,9 @@ namespace AssignmentTask.Controllers
 
         public ActionResult viewDeails(int id)
         {
-            int intOId = Convert.ToInt32(id);
 
-            var customer = (from o in db.Orders
-                            join cus in db.Customers on o.CustomerId equals cus.Id
-
-                            select new SalesViewModel
-                            {
-                                OrderId = o.Id,
-                                Name = cus.Name,
-                                Phone = cus.Phone,
-                                Address = cus.Address,
-                                Total = (double)o.Total,
-                                Paid = o.Paid,
-                                Due = (double)o.Total - o.Paid
-                            }).Where(x => x.OrderId == intOId).ToList();
-
-            var orderItems = (from o in db.Orders
-                              join oItem in db.OrderItems on o.Id equals oItem.OrderId
-                              join pro in db.Products on oItem.ProductId equals pro.Id
-                              where o.Id == intOId
-                              select new
-                              {
-                                  OrderId = o.Id,
-                                  ProductId = pro.Id,
-                                  ProductName = pro.Name,
-                                  Quantity = oItem.Quantity,
-                                  Price = pro.Price
-                              }).ToList();
-            DetailsViewModel vModel = new DetailsViewModel();
-
-            vModel.OrderId = customer.FirstOrDefault().OrderId;
-            vModel.Name = customer.FirstOrDefault().Name;
-            vModel.Address = customer.FirstOrDefault().Address;
-            vModel.Phone = customer.FirstOrDefault().Phone;
-            vModel.Total = customer.FirstOrDefault().Total;
-            vModel.Paid = customer.FirstOrDefault().Paid;
-            vModel.Due = customer.FirstOrDefault().Total - customer.FirstOrDefault().Paid;
-
-            foreach (var item in orderItems)
-            {
-                DetailsItemViewModel itemViewModel = new DetailsItemViewModel();
-                itemViewModel.ItemId = item.ProductId;
-                itemViewModel.ItemName = item.ProductName;
-                itemViewModel.Price = item.Price;
-                itemViewModel.Quantity = item.Quantity;
-                itemViewModel.Total = item.Price * item.Quantity;
-                vModel.OrderItemList.Add(itemViewModel);
-            }
-
-            return View(vModel);
+            var details = service.GetDetailsById(Convert.ToInt32(id));
+            return View(details);
         }
 
         public ActionResult DeleteSales(int id)
@@ -174,6 +129,14 @@ namespace AssignmentTask.Controllers
             if (order != null) db.Orders.Remove(order);
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public JsonResult Edit(string orderId)
+        {
+            var details= service.GetDetailsById(Convert.ToInt32(orderId));
+
+            return Json(details, JsonRequestBehavior.AllowGet);
         }
     }
 }
