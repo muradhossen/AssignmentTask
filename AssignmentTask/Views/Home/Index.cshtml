@@ -213,7 +213,7 @@
 
         var gTotal = 0;         
         function addNewSales() {
-            clearAllModal();
+            clearAll();
             $("#newOrderModal").modal();
         }
 
@@ -379,7 +379,7 @@
                 data: "OrderId=" + orderId,
                 type: "POST",
                 success: function (data) {                    
-                    clearAllModal();
+                    clearAll();
 
                     var obj = data["OrderItemList"];
                     $.each(obj, function (key, value) {                       
@@ -405,7 +405,7 @@
             })
         }
 
-        function clearAllModal() {
+        function clearAll() {
             //------
             clearItem();
             $("#name").val('');

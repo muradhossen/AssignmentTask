@@ -16,18 +16,7 @@ namespace AssignmentTask.Controllers
         OrderService service = new OrderService();
         public ActionResult Index()
         {
-            var result = (from cus in db.Customers
-                          join o in db.Orders on cus.Id equals o.CustomerId
-                          select new SalesViewModel
-                          {
-                              OrderId = o.Id,
-                              Name = cus.Name,
-                              Phone = cus.Phone,
-                              Address = cus.Address,
-                              Total = (double)o.Total,
-                              Paid = o.Paid,
-                              Due = (double)o.Total - o.Paid
-                          }).ToList();
+            var result = service.GetAll();
             return View(result);
         }
 
@@ -50,82 +39,39 @@ namespace AssignmentTask.Controllers
         }
         public JsonResult SaveOrder(string gTotal, string paid, User[] user, OrderItemViewModel[] order)
         {
-            if(gTotal!="" && paid!="" && user!=null && order != null)
+            int oId = 0;
+            if (gTotal != "" && paid != "" && user.Length > 0 && order.Length > 0)
             {
                 try
                 {
-
                     List<OrderItemViewModel> Orders = order.ToList();
-                    //Customer Table
-                    User vUser = new User()
-                    {
-                        name = user[0].name,
-                        address = user[0].address,
-                        phone = user[0].phone
-                    };
-
-                    Customer mCustomer = new Customer()
-                    {
-                        Name = vUser.name,
-                        Address = vUser.address,
-                        Phone = vUser.phone
-                    };
-                    db.Customers.Add(mCustomer);
-                    db.SaveChanges();
-                    var cId = db.Customers.OrderByDescending(x => x.Id).FirstOrDefault().Id;
-
-                    //Order Table
-                    Order mOrder = new Order
-                    {
-                        CustomerId = cId,
-                        Paid = Convert.ToInt32(paid),
-                        Total = Convert.ToInt32(gTotal)
-                    };
-                    db.Orders.Add(mOrder);
-                    db.SaveChanges();
-                    var oId = db.Orders.OrderByDescending(x => x.Id).FirstOrDefault().Id;
-
-                    //Order Item Table
-                    foreach (var item in Orders)
-                    {
-                        OrderItem orderItem = new OrderItem
-                        {
-                            ProductId = item.itemId,
-                            OrderId = oId,
-                            Quantity = item.quantity,
-                        };
-                        db.OrderItems.Add(orderItem);
-                    }
-                    db.SaveChanges();
+                    int cId = service.SaveCustomer(gTotal, paid, user);
+                    if (cId > 0) oId = service.SaveOrders(gTotal, paid, cId);
+                    if (oId > 0) service.SaveOrderItem(Orders, oId);
                 }
                 catch (Exception e)
                 {
-
-                    throw;
+                    return Json(e.Message, JsonRequestBehavior.AllowGet);
                 }
             }
-           
+
             else return Json("Please Fill Up All Properties", JsonRequestBehavior.AllowGet);
 
             return Json("Success", JsonRequestBehavior.AllowGet);
         }
-
-
         public ActionResult viewDeails(int id)
         {
-
             var details = service.GetDetailsById(Convert.ToInt32(id));
             return View(details);
         }
-
         public ActionResult DeleteSales(int id)
         {
-            var orderItems= db.OrderItems.Where(x => x.OrderId == id).ToList();
+            var orderItems = db.OrderItems.Where(x => x.OrderId == id).ToList();
             foreach (var item in orderItems)
             {
                 db.OrderItems.Remove(item);
             }
-            var order= db.Orders.Find(id);
+            var order = db.Orders.Find(id);
             if (order != null) db.Orders.Remove(order);
             db.SaveChanges();
             return RedirectToAction("Index");
@@ -134,7 +80,7 @@ namespace AssignmentTask.Controllers
         [HttpPost]
         public JsonResult Edit(string orderId)
         {
-            var details= service.GetDetailsById(Convert.ToInt32(orderId));
+            var details = service.GetDetailsById(Convert.ToInt32(orderId));
 
             return Json(details, JsonRequestBehavior.AllowGet);
         }

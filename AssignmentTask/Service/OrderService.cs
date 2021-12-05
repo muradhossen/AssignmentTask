@@ -67,5 +67,91 @@ namespace AssignmentTask.Service
             }
             return vModel;
         }
+        public int SaveCustomer(string gTotal, string paid, User[] user)
+        {
+            if (user.Length==0) return -1;
+            try
+            {               
+                //Customer Table
+                User vUser = new User()
+                {
+                    name = user[0].name,
+                    address = user[0].address,
+                    phone = user[0].phone
+                };
+
+                Customer mCustomer = new Customer()
+                {
+                    Name = vUser.name,
+                    Address = vUser.address,
+                    Phone = vUser.phone
+                };
+                db.Customers.Add(mCustomer);
+                db.SaveChanges();
+                var cId = db.Customers.OrderByDescending(x => x.Id).FirstOrDefault().Id;
+                if (cId < 0) return -1;
+                return cId;
+               
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+             
+        }
+        public int SaveOrders(string gTotal, string paid, int cId)
+        {
+            if (gTotal == "" || paid == "" || cId < 0)
+                return -1;
+            //Order Table
+            Order mOrder = new Order
+            {
+                CustomerId = cId,
+                Paid = Convert.ToInt32(paid),
+                Total = Convert.ToInt32(gTotal)
+            };
+            db.Orders.Add(mOrder);
+            db.SaveChanges();
+
+             var oId = db.Orders.OrderByDescending(x => x.Id).FirstOrDefault().Id;
+            return oId;
+        }
+        public bool SaveOrderItem(List<OrderItemViewModel> Orders, int oId)
+        {
+            if (Orders.Count == 0 || oId < 0) return false;
+            //Order Item Table
+            foreach (var item in Orders)
+            {
+                OrderItem orderItem = new OrderItem
+                {
+                    ProductId = item.itemId,
+                    OrderId = oId,
+                    Quantity = item.quantity,
+                };
+                db.OrderItems.Add(orderItem);
+            }
+            db.SaveChanges();
+            return true;
+        }
+        public List<SalesViewModel> GetAll()
+        {
+            return (from cus in db.Customers
+                    join o in db.Orders on cus.Id equals o.CustomerId
+                    select new SalesViewModel
+                    {
+                        OrderId = o.Id,
+                        Name = cus.Name,
+                        Phone = cus.Phone,
+                        Address = cus.Address,
+                        Total = (double)o.Total,
+                        Paid = o.Paid,
+                        Due = (double)o.Total - o.Paid
+                    }).ToList();
+        }
+        public bool DeleteSales()
+        {
+            return true;
+        }
     }
 }
